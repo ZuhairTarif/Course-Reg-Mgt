@@ -6,18 +6,16 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../view/css/style.css">
-    <title>Document</title>
+    <title>Faculty Dashboard</title>
 </head>
 <body>
 <header>
-    <!-- Add your logo here if needed -->
+    
     <nav>
         <ul class="nav-links">
             <li><a href="#">Add Course</a></li>
             <li><a href="#">Delete Course</a></li>
-            <li><a href="#">Dashboard</a></li>
             <li><a href="section-list.php">Section List</a></li>
-            <li><a href="#">Account</a></li>
             <li><a href="../model/logout.php">Logout</a></li>
         </ul>
     </nav>
