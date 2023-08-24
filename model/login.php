@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'database-config.php';
 
 function login()
@@ -35,6 +36,10 @@ function login()
                 }
             }
 
+            $_SESSION['user_authenticated'] = true;
+            $_SESSION['user_type'] = $table; 
+            $_SESSION['username'] = $username;
+
             // Now that we know if it's a student or faculty, proceed with the login logic
             $query = "SELECT * FROM $table 
                       WHERE Email = :email 
@@ -55,6 +60,7 @@ function login()
                 oci_execute($stid);
                 $row = oci_fetch_assoc($stid);
                 $username = $row['USERNAME'];
+
 
                 // Redirect based on detected table (student or faculty)
                 if ($table === 'Student') {

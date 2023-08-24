@@ -18,7 +18,7 @@
             <li><a href="#">Dashboard</a></li>
             <li><a href="section-list.php">Section List</a></li>
             <li><a href="#">Account</a></li>
-            <li><a href="./login.php">Logout</a></li>
+            <li><a href="../model/logout.php">Logout</a></li>
         </ul>
     </nav>
 </header>

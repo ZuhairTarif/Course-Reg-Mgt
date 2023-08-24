@@ -1,5 +1,5 @@
 <?php
-require_once '../model/database-config.php'; // Assuming you have a database configuration
+require_once '../model/database-config.php';
 require_once '../model/delete-course.php';
 
 // Fetch the list of courses from the database
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_course'])) {
                     <td>
                         <form method="post" action="">
                             <input type="hidden" name="delete_course" value="<?php echo $course['COURSE_ID']; ?>">
-                            <button type="submit">Delete</button>
+                            <button type="submit" class="button1">Delete</button>
                         </form>
                     </td>
                 </tr>

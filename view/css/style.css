@@ -266,6 +266,28 @@ footer {
     box-shadow: rgba(0, 0, 0, 0.801) 0 7px 29px 0;
 }
 
+
+.button1{
+    font-size: 15px;
+    margin: 10px;
+    padding: 10px 40px;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: 0;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: rgba(68, 67, 67, 0.87) 0 2px 8px 0;
+}
+
+.button1:hover{
+    letter-spacing: 3px;
+    color: hsl(0, 0%, 100%);
+    background-color: rgb(159, 8, 41);
+    box-shadow: rgba(0, 0, 0, 0.801) 0 7px 29px 0;
+}
+
 /*.button:active {
     transition: 100ms;
     transform: translateY(10px);

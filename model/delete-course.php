@@ -1,4 +1,7 @@
 <?php
+require_once '../model/protection.php';
+verifyLoggedIn();
+verifyNotFaculty();
 require_once 'database-config.php';
 
 function deleteCourse($courseId)
@@ -16,4 +19,5 @@ function deleteCourse($courseId)
         return false;
     }
 }
+
 ?>

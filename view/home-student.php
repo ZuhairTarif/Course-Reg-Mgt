@@ -16,7 +16,7 @@
             <li><a href="#">Add Course</a></li>
             <li><a href="./delete-course.php">Delete Course</a></li>
             <li><a href="./faculty-list.php">Faculty List</a></li>
-            <li><a href="./login.php">Logout</a></li>
+            <li><a href="../model/logout.php">Logout</a></li>
         </ul>
     </nav>
 </header>
