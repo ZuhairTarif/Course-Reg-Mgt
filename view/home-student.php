@@ -13,7 +13,7 @@
     
     <nav>
         <ul class="nav-links">
-            <li><a href="#">Add Course</a></li>
+            <li><a href="./course-add.php">Add Course</a></li>
             <li><a href="./delete-course.php">Delete Course</a></li>
             <li><a href="./faculty-list.php">Faculty List</a></li>
             <li><a href="../model/logout.php">Logout</a></li>

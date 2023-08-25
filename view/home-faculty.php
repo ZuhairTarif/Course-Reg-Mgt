@@ -13,9 +13,9 @@
     
     <nav>
         <ul class="nav-links">
-            <li><a href="#">Add Course</a></li>
-            <li><a href="#">Delete Course</a></li>
-            <li><a href="section-list.php">Section List</a></li>
+            <li><a href="./course-add.php">Add Course</a></li>
+            <li><a href="./delete-course.php">Delete Course</a></li>
+            <li><a href="./section-list.php">Section List</a></li>
             <li><a href="../model/logout.php">Logout</a></li>
         </ul>
     </nav>
