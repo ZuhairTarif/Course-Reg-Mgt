@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_course'])) {
     <meta charset="UTF-8">
     <title>Delete Course</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="./img/favicon.png" type="image/png">
 
 </head>
 <body>
