@@ -387,4 +387,308 @@ CREATE SYNONYM Stdsid_syn
 FOR Stdsid;
 CREATE SYNONYM Syn_Dept FOR Dept;
 
+--PL/SQL PART 
+
+
+--Creating Functions
+-- 1. Write a function to calculate total credit fee
+CREATE OR REPLACE FUNCTION calculate_credit_fee(p_credit_per_course IN NUMBER, p_num_courses IN NUMBER)
+RETURN NUMBER IS
+    v_total_fee NUMBER;
+BEGIN
+    v_total_fee := p_credit_per_course * p_num_courses * 5500; -- AIUB per credit fee is 5500
+    RETURN v_total_fee;
+END;
+/
+-- 2. Write a function to get student email
+CREATE OR REPLACE FUNCTION get_student_email(p_student_id IN NUMBER)
+RETURN VARCHAR2 IS
+    v_email VARCHAR2(50);
+BEGIN
+    SELECT Email INTO v_email FROM Student WHERE S_INFO = p_student_id;
+    RETURN v_email;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
+END;
+/
+-- 3. Write a function to check course availability
+CREATE OR REPLACE FUNCTION check_course_availability(p_course_info IN VARCHAR2)
+RETURN BOOLEAN IS
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Course WHERE Course_info = p_course_info;
+    RETURN v_count > 0;
+END;
+/
+
+
+--Creating Procedures
+-- 1. Write a procedure for update course
+create or replace PROCEDURE update_course(
+    p_course_info IN VARCHAR2,
+    p_new_course_time IN VARCHAR2,
+    p_new_section IN VARCHAR2
+)
+IS
+BEGIN
+    UPDATE Course
+    SET Course_time = p_new_course_time,
+        Section = p_new_section
+    WHERE Course_info = p_course_info;
+
+    COMMIT;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Course not found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+-- 2. Write a procedure to update student password
+CREATE OR REPLACE PROCEDURE update_student_password(
+    p_s_info IN VARCHAR2,
+    p_new_password IN VARCHAR2
+)
+IS
+BEGIN
+    UPDATE Student SET Password = p_new_password WHERE S_info = p_s_info;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Password updated successfully.');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Student not found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+-- 3. Write a procedure to assign faculty to course.
+CREATE OR REPLACE PROCEDURE assign_faculty_to_course(p_faculty_id IN NUMBER, p_course_info IN VARCHAR2)
+IS
+BEGIN
+    UPDATE Faculty SET Courses = p_course_info WHERE Faculty_id = p_faculty_id;
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+END;
+/
+ 
+
+--Creating Records
+-- 1. Write a record to store faculty information
+DECLARE
+    TYPE FacultyRecord IS RECORD (
+        faculty_id Faculty.Faculty_id%TYPE,
+        faculty_name Faculty.Name%TYPE,
+        faculty_courses Faculty.Courses%TYPE
+    );
+    v_faculty FacultyRecord;
+BEGIN
+    SELECT Faculty_id, Name, Courses INTO v_faculty FROM Faculty WHERE Faculty_id = 1003;
+    DBMS_OUTPUT.PUT_LINE('Faculty ID: ' || v_faculty.faculty_id || ', Name: ' || v_faculty.faculty_name || ', Courses: ' || v_faculty.faculty_courses);
+END;
+/
+-- 2. Write a record to store course information
+DECLARE
+    TYPE CourseRecord IS RECORD (
+        course_code Course.Course_info%TYPE,
+        course_time Course.Course_time%TYPE,
+        course_section Course.Section%TYPE
+    );
+    v_course CourseRecord;
+BEGIN
+    SELECT Course_info, Course_time, Section INTO v_course FROM Course WHERE Course_info = 'CSC101';
+    DBMS_OUTPUT.PUT_LINE('Course Code: ' || v_course.course_code || ', Time: ' || v_course.course_time || ', Section: ' || v_course.course_section);
+END;
+/
+-- 3. Write a record to store student information
+DECLARE
+    TYPE StudentRecord IS RECORD (
+        student_id Student.s_info%TYPE,
+        student_name Student.Name%TYPE,
+        student_email Student.Email%TYPE
+    );
+    v_student StudentRecord;
+BEGIN
+    SELECT s_info, Name, Email INTO v_student FROM Student WHERE s_info = 0001;
+    DBMS_OUTPUT.PUT_LINE('Student ID: ' || v_student.student_id || ', Name: ' || v_student.student_name || ', Email: ' || v_student.student_email);
+END;
+/
+ 
+
+--Creating Cursors
+-- 1. Write a cursor to list students in a course
+DECLARE
+    CURSOR student_cursor IS
+        SELECT S_info, Name FROM Student WHERE S_info IN (SELECT S_info FROM Stdsid WHERE Course_info = 'CSC101');
+    v_student_id Student.S_info%TYPE;
+    v_student_name Student.Name%TYPE;
+BEGIN
+    OPEN student_cursor;
+    LOOP
+        FETCH student_cursor INTO v_student_id, v_student_name;
+        EXIT WHEN student_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('Student ID: ' || v_student_id || ', Name: ' || v_student_name);
+    END LOOP;
+    CLOSE student_cursor;
+END;
+/
+-- 2. Write a cursor to calculate total credit fees
+DECLARE
+    CURSOR course_cursor IS
+        SELECT Course_D, Credit_per_course FROM DetailsCourse;
+    v_course_info DetailsCourse.Course_d%TYPE;
+    v_credit_per_course detailscourse.course_credit_fee%TYPE;
+    v_total_fee NUMBER := 0;
+BEGIN
+    OPEN course_cursor;
+    LOOP
+        FETCH course_cursor INTO v_course_info, v_credit_per_course;
+        EXIT WHEN course_cursor%NOTFOUND;
+        v_total_fee := v_total_fee + (v_credit_per_course * 5500); -- AIUB per credit 5500
+    END LOOP;
+    CLOSE course_cursor;
+    DBMS_OUTPUT.PUT_LINE('Total Credit Fees: ' || v_total_fee);
+END;
+/
+-- 3. Write a cursor to update students’ email domain
+DECLARE
+    CURSOR student_cursor IS
+        SELECT s_info, Email FROM Student WHERE Email LIKE '%@example.com';
+    v_student_id student.s_info%TYPE;
+    v_student_email Student.Email%TYPE;
+BEGIN
+    OPEN student_cursor;
+    LOOP
+        FETCH student_cursor INTO v_student_id, v_student_email;
+        EXIT WHEN student_cursor%NOTFOUND;
+        UPDATE Student SET Email = REPLACE(v_student_email, '@example.com', '@aiub.edu') WHERE s_info = v_student_id;
+        COMMIT;
+    END LOOP;
+    CLOSE student_cursor;
+END;
+/
+
+--Creating Triggers
+-- 1. Write a trigger to update course credit fee.
+CREATE OR REPLACE TRIGGER update_credit_fee
+BEFORE INSERT ON DetailsCourse
+FOR EACH ROW
+BEGIN
+    :NEW.Course_credit_fee := :NEW.Credit_per_course * 5500; -- AIUB per credit fee 5500
+END;
+/
+-- 2. Write a trigger to enforce maximum students in a class.
+CREATE OR REPLACE TRIGGER enforce_max_students
+BEFORE INSERT ON Stdsid
+FOR EACH ROW
+DECLARE
+    v_max_students NUMBER := 30;
+    v_current_students NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_current_students FROM Stdsid WHERE Class_info = :NEW.Class_info;
+    IF v_current_students >= v_max_students THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Class is full. Cannot enroll more students.');
+    END IF;
+END;
+/
+-- 3. Write a trigger to change faculty email domain.
+CREATE OR REPLACE TRIGGER change_faculty_email_domain
+BEFORE UPDATE ON Faculty
+FOR EACH ROW
+BEGIN
+    IF UPDATING('Email') THEN
+        -- Replace old domain with new domain
+        :NEW.Email := REPLACE(:NEW.Email, '@example.com', '@aiub.edu');
+    END IF;
+END;
+/
+
+--Creating Packages 
+-- 1. Create a package to insert course
+CREATE OR REPLACE PACKAGE Course_Package AS
+    PROCEDURE Insert_Course(
+        p_Course_Info VARCHAR2,
+        p_Course_Time VARCHAR2,
+        p_Section VARCHAR2
+    );
+END Course_Package;
+/
+CREATE OR REPLACE PACKAGE BODY Course_Package AS
+    PROCEDURE Insert_Course(
+        p_Course_Info VARCHAR2,
+        p_Course_Time VARCHAR2,
+        p_Section VARCHAR2
+    ) IS
+    BEGIN
+        INSERT INTO Course (Course_Info, Course_Time, Section)
+        VALUES (p_Course_Info, p_Course_Time, p_Section);
+        
+        COMMIT;
+    EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            RAISE;
+    END Insert_Course;
+END Course_Package;
+/ 
+-- 2. Create a package to retrieve only Computer Science Faculties
+CREATE OR REPLACE PACKAGE Faculty_Package AS
+    TYPE Faculty_Record IS RECORD (
+        Faculty_ID Faculty.Faculty_ID%TYPE,
+        Courses Faculty.Courses%TYPE,
+        Time Faculty.Time%TYPE,
+        Assigned_Students Faculty.Assigned_Students%TYPE,
+        Name Faculty.Name%TYPE,
+        Username Faculty.Username%TYPE,
+        Password Faculty.Password%TYPE,
+        Email Faculty.Email%TYPE
+    );
+    TYPE Faculty_Cursor IS REF CURSOR RETURN Faculty_Record;
+    FUNCTION Get_CSE_Faculties RETURN Faculty_Cursor;
+END Faculty_Package;
+/
+CREATE OR REPLACE PACKAGE BODY Faculty_Package AS
+    FUNCTION Get_CSE_Faculties RETURN Faculty_Cursor IS
+        cse_faculties Faculty_Cursor;
+    BEGIN
+        OPEN cse_faculties FOR
+            SELECT Faculty_ID, Courses, Time, Assigned_Students, Name, Username, Password, Email
+            FROM Faculty
+            WHERE Courses = 'Computer Science';
+        
+        RETURN cse_faculties;
+    END Get_CSE_Faculties;
+END Faculty_Package;
+/ 
+-- 3. Create a package to retrieve assigned course by student name.
+CREATE OR REPLACE PACKAGE Student_Course_Package AS
+    FUNCTION Get_Assigned_Course(
+        p_Student_Name Student.Name%TYPE
+    ) RETURN VARCHAR2;
+END Student_Course_Package;
+/
+CREATE OR REPLACE PACKAGE BODY Student_Course_Package AS
+    FUNCTION Get_Assigned_Course(
+        p_Student_Name Student.Name%TYPE
+    ) RETURN VARCHAR2 IS
+        v_Assigned_Course VARCHAR2(20);
+    BEGIN
+        SELECT DISTINCT ci.Course_d INTO v_Assigned_Course
+        FROM Stdsid s
+        JOIN Course_id ci ON s.Course_id = ci.Course_id
+        JOIN Student stu ON s.S_info = stu.S_info
+        WHERE stu.Name = p_Student_Name;
+
+        RETURN v_Assigned_Course;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RETURN NULL;
+    END Get_Assigned_Course;
+END Student_Course_Package;
+/
+
 
