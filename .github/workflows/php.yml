@@ -1,39 +1,35 @@
-name: PHP Composer
+name: Deploy PHP Application
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main  # Trigger deployment on push to the main branch
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main  # Trigger deployment on PR to the main branch
 
 permissions:
-  contents: read
+  contents: read  # Permissions for reading the contents of the repository
 
 jobs:
-  build:
+  deploy:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Run the job on an Ubuntu machine
 
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
-
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
       with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+        php-version: '8.0'
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
+    - name: Sync files to server (via SSH)
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }} 
+        key: ${{ secrets.SERVER_SSH_KEY }} 
+        port: 22  # Default SSH port
+        script: |
+          git pull origin main
